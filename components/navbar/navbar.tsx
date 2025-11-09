@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { Menu, X, Sun, Moon } from "lucide-react";
@@ -19,34 +19,31 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useAppSelector, useAppDispatch } from "@/lib/store";
+import { useAppSelector, useAppDispatch } from "@/lib/store/store";
 import { logout } from "@/lib/store/authSlice";
+import { persistor } from "@/lib/store/store";
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { theme, setTheme } = useTheme();
+
   const dispatch = useAppDispatch();
- const user = useAppSelector((state) => state.auth.user) 
-  const [token, setToken] = useState<string | null>(null);
+  const { user, token } = useAppSelector((state) => state.auth);
 
-  useEffect(() => {
-    // ✅ runs only in browser
-    const storedToken = localStorage.getItem("token");
-    setToken(storedToken);
-  }, []);
-
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Clear persisted Redux state
+    await persistor.purge();
     dispatch(logout());
   };
 
   return (
     <nav
       className="
-      fixed top-3 left-1/2 z-50 w-[80%] -translate-x-1/2 
-      rounded-xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)]
-      bg-white/10 dark:bg-neutral-900/40 backdrop-blur-xl
-      transition-colors
-    "
+        fixed top-3 left-1/2 z-50 w-[80%] -translate-x-1/2 
+        rounded-xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)]
+        bg-white/10 dark:bg-neutral-900/40 backdrop-blur-xl
+        transition-colors
+      "
     >
       <div className="container mx-auto flex h-14 items-center justify-between px-4">
         {/* Left: Logo */}
@@ -157,9 +154,9 @@ export default function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Avatar className="cursor-pointer border border-border hover:ring-2 hover:ring-primary/60 transition">
-                  <AvatarImage />
+                  <AvatarImage src="" />
                   <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
-                    {"U"}
+                    {user?.username?.[0]?.toUpperCase() || "U"}
                   </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
@@ -233,24 +230,15 @@ export default function Navbar() {
               Toggle Theme
             </Button>
 
-            {user ? (
+            {user || token ? (
               <>
-                <Link
-                  href="/profile"
-                  className="text-sm font-medium hover:text-primary"
-                >
+                <Link href="/profile" className="text-sm font-medium hover:text-primary">
                   Profile
                 </Link>
-                <Link
-                  href="/bookmarks"
-                  className="text-sm font-medium hover:text-primary"
-                >
+                <Link href="/bookmarks" className="text-sm font-medium hover:text-primary">
                   Bookmarks
                 </Link>
-                <Link
-                  href="/settings"
-                  className="text-sm font-medium hover:text-primary"
-                >
+                <Link href="/settings" className="text-sm font-medium hover:text-primary">
                   Settings
                 </Link>
                 <Button variant="destructive" onClick={handleLogout}>

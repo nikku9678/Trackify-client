@@ -19,42 +19,8 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="p-6 min-h-screen bg-gradient-to-br from-background to-muted/50 dark:from-neutral-900 dark:to-neutral-800">
-      <h1 className="text-2xl font-bold mb-6 text-center">Admin Dashboard</h1>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <PieChartCard data={userStats} title="User Activity Overview" />
-        <BarChartCard data={categoryStats} title="Problems Solved by Category" />
-      </div>
-
-      <div className="mt-6 grid md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Users</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-primary">400</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Problems</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-purple-500">950</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Overall Accuracy</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold text-green-500">74%</p>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+   <div>
+    Hello
+   </div>
   );
 }

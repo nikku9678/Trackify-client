@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/lib/store";
+import { useAppDispatch, useAppSelector } from "@/lib/store/store";
 import { loginUser } from "@/lib/store/authSlice";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";

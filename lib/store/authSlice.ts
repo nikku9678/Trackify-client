@@ -1,11 +1,16 @@
+// lib/store/authSlice.ts
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { api } from "./authApi";
 import Cookies from "js-cookie";
+import { api } from "@/lib/store/authApi";
+import type { RootState } from "./store";
 
-interface User {
+export type Role = "admin" | "user" | string;
+
+export interface User {
   id: number;
   username: string;
-  email: string;
+  email?: string;
+  role?: Role;
   phone?: string;
 }
 
@@ -18,55 +23,83 @@ interface AuthState {
 
 const initialState: AuthState = {
   user: null,
-  token: Cookies.get("token") || null,
+  token: Cookies.get("token") || localStorage.getItem("token") || null,
   loading: false,
   error: null,
 };
 
-// --- Async Thunks ---
+const normalizeLoginPayload = (payload: any) => {
+  if (!payload) return { token: null, user: null };
+  if (payload.token && payload.user) return { token: payload.token, user: payload.user };
+  if (payload.data && payload.data.token && payload.data.user) return { token: payload.data.token, user: payload.data.user };
+  if (payload.user) return { token: payload.token ?? null, user: payload.user };
+  // fallback if payload itself is user
+  if (payload.id || payload.username) return { token: null, user: payload };
+  return { token: payload.token ?? null, user: payload.user ?? null };
+};
+
+const normalizeFetchUserPayload = (payload: any) => {
+  if (!payload) return null;
+  if (payload.user) return payload.user;
+  if (payload.data && payload.data.user) return payload.data.user;
+  if (payload.id || payload.username) return payload;
+  return null;
+};
+
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (body: { email: string; password: string }, { rejectWithValue }) => {
     try {
       const { data } = await api.post("/auth/login", body);
-      localStorage.setItem("token", data.token);
-      
-      Cookies.set("token", data.token, { expires: 7 });
+      const { token } = normalizeLoginPayload(data);
+       // Normalize role to lowercase to simplify checks on frontend
+      if (data?.user?.role) {
+        data.user.role = String(data.user.role).toLowerCase(); // "ADMIN" -> "admin"
+      }
+
+      if (token) {
+        Cookies.set("token", token, { expires: 7 });
+        localStorage.setItem("token", token);
+      }
+      console.log("nk",data)
       return data;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || "Login failed");
+      return rejectWithValue(err?.response?.data?.message ?? "Login failed");
     }
   }
 );
 
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
-  async (body: { username: string; email: string; phone: string; password: string }, { rejectWithValue }) => {
+  async (body: { username: string; email: string; phone?: string; password: string }, { rejectWithValue }) => {
     try {
       const { data } = await api.post("/auth/register", body);
-      Cookies.set("token", data.token, { expires: 7 });
+      const { token } = normalizeLoginPayload(data);
+      if (token) {
+        Cookies.set("token", token, { expires: 7 });
+        localStorage.setItem("token", token);
+      }
       return data;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || "Registration failed");
+      return rejectWithValue(err?.response?.data?.message ?? "Registration failed");
     }
   }
 );
 
-// Fetch logged-in user (for refresh)
 export const fetchUser = createAsyncThunk("auth/fetchUser", async (_, { rejectWithValue }) => {
-  const token = Cookies.get("token");
+  const token = Cookies.get("token") || localStorage.getItem("token");
   if (!token) return rejectWithValue("No token found");
-
   try {
     const { data } = await api.get("/auth/me");
+    console.log("Me: ",data)
     return data;
   } catch (err: any) {
     Cookies.remove("token");
+    localStorage.removeItem("token");
     return rejectWithValue("Failed to fetch user");
   }
 });
 
-// --- Slice ---
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -76,37 +109,60 @@ const authSlice = createSlice({
       localStorage.removeItem("token");
       state.user = null;
       state.token = null;
+      state.loading = false;
+      state.error = null;
+    },
+    setAuthManually: (state, { payload }: { payload: { token?: string | null; user?: User | null } }) => {
+      const { token, user } = payload;
+      if (token) {
+        Cookies.set("token", token, { expires: 7 });
+        localStorage.setItem("token", token);
+      }
+      if (token === null) {
+        Cookies.remove("token");
+        localStorage.removeItem("token");
+      }
+      state.token = token ?? state.token;
+      state.user = user ?? state.user;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(loginUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+      .addCase(loginUser.pending, (s) => { s.loading = true; s.error = null; })
+      .addCase(loginUser.fulfilled, (s, { payload }) => {
+        s.loading = false;
+        const { token, user } = normalizeLoginPayload(payload);
+        s.token = token ?? s.token;
+        s.user = user ?? s.user;
       })
-      .addCase(loginUser.fulfilled, (state, { payload }) => {
-        state.loading = false;
-        state.user = payload.user;
-        state.token = payload.token;
+      .addCase(loginUser.rejected, (s, { payload }) => { s.loading = false; s.error = payload as string; })
+      .addCase(registerUser.pending, (s) => { s.loading = true; s.error = null; })
+      .addCase(registerUser.fulfilled, (s, { payload }) => {
+        s.loading = false;
+        const { token, user } = normalizeLoginPayload(payload);
+        s.token = token ?? s.token;
+        s.user = user ?? s.user;
       })
-      .addCase(loginUser.rejected, (state, { payload }) => {
-        state.loading = false;
-        state.error = payload as string;
+      .addCase(registerUser.rejected, (s, { payload }) => { s.loading = false; s.error = payload as string; })
+      .addCase(fetchUser.pending, (s) => { s.loading = true; s.error = null; })
+      .addCase(fetchUser.fulfilled, (s, { payload }) => {
+        s.loading = false;
+        const u = normalizeFetchUserPayload(payload);
+        s.user = u ?? s.user;
       })
-      .addCase(registerUser.fulfilled, (state, { payload }) => {
-        state.loading = false;
-        state.user = payload.user;
-        state.token = payload.token;
-      })
-      .addCase(fetchUser.fulfilled, (state, { payload }) => {
-        state.user = payload;
-      })
-      .addCase(fetchUser.rejected, (state) => {
-        state.user = null;
-        state.token = null;
+      .addCase(fetchUser.rejected, (s) => {
+        s.loading = false;
+        s.user = null;
+        s.token = null;
       });
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, setAuthManually } = authSlice.actions;
 export default authSlice.reducer;
+
+export const selectAuth = (state: RootState) => state.auth;
+export const selectIsAuthenticated = (state: RootState) => Boolean(state.auth.token);
+export const selectRole = (state: RootState) => state.auth.user?.role ?? null;
+export const selectIsAdmin = (state: RootState) => state.auth.user?.role === "admin";
+export const selectIsUser = (state: RootState) => state.auth.user?.role === "user";

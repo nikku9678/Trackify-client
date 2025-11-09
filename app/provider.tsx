@@ -2,14 +2,19 @@
 
 import { ThemeProvider } from "next-themes";
 import { Provider } from "react-redux";
-import { store } from "@/lib/store";
+import { PersistGate } from "redux-persist/integration/react";
+import { store, persistor, useAppDispatch } from "@/lib/store/store";
+import AuthInitializer from "@/app/auth-initializer";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <Provider store={store}>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        {children}
-      </ThemeProvider>
+      <PersistGate loading={null} persistor={persistor}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <AuthInitializer />
+          {children}
+        </ThemeProvider>
+      </PersistGate>
     </Provider>
   );
 }
