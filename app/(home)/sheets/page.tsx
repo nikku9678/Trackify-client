@@ -14,7 +14,8 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Search, BookOpen } from "lucide-react";
 import Link from "next/link";
-import { api } from "@/lib/store/authApi"; // ✅ axios instance (must include baseURL + token)
+import { api } from "@/lib/feature/authApi"; // ✅ axios instance (must include baseURL + token)
+import CustomSheets from "@/components/sheets/custom-sheets";
 
 interface Sheet {
   sheet_id: number;
@@ -37,7 +38,7 @@ const Sheets = () => {
       try {
         setLoading(true);
         setError(null);
-        const res = await api.get("/sheets");
+        const res = await api.get("/sheets/");
         console.log("Fetched Sheets:", res.data);
 
         // ✅ Handle data safely
@@ -80,18 +81,35 @@ const Sheets = () => {
   }
 
   return (
-    <div className="flex min-h-screen flex-col p-6 md:p-24 bg-background text-foreground transition-colors">
+    <div className="flex flex-col md:py-8 bg-background text-foreground transition-colors">
       {/* Heading */}
-      <div className="text-center space-y-4 mb-10">
+      <div className="text-left space-y-4 mb-10">
         <h1 className="text-3xl md:text-4xl font-bold">All Sheets</h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-muted-foreground">
           Explore curated coding sheets to improve your problem-solving skills.
           Search, filter, and track your progress easily.
         </p>
       </div>
 
       {/* Search Bar */}
-      <div className="relative max-w-md mx-auto mb-6">
+      <div className="flex flex-row justify-between">
+
+   
+     
+
+      {/* Filter Tabs */}
+      <div className="flex justify-start mb-8">
+        <Tabs defaultValue="all" onValueChange={(val) => setFilter(val)}>
+          <TabsList className="flex space-x-2 bg-muted p-1 rounded-md">
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="DSA">DSA</TabsTrigger>
+            <TabsTrigger value="CP">CP</TabsTrigger>
+            <TabsTrigger value="Popular">Popular</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
+       <div className="w-1/3">
         <Search
           className="absolute left-3 top-3 text-muted-foreground"
           size={18}
@@ -104,18 +122,7 @@ const Sheets = () => {
           className="pl-10"
         />
       </div>
-
-      {/* Filter Tabs */}
-      <div className="flex justify-center mb-8">
-        <Tabs defaultValue="all" onValueChange={(val) => setFilter(val)}>
-          <TabsList className="flex space-x-2 bg-muted p-1 rounded-md">
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="DSA">DSA</TabsTrigger>
-            <TabsTrigger value="CP">CP</TabsTrigger>
-            <TabsTrigger value="Popular">Popular</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
+         </div>
 
       {/* Sheets Cards */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -160,6 +167,7 @@ const Sheets = () => {
           </p>
         )}
       </div>
+      <CustomSheets/>
     </div>
   );
 };

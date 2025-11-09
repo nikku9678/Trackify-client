@@ -1,45 +1,43 @@
 "use client";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAppSelector } from "@/lib/store/store"; // you expose hooks in store file
-import type { RootState } from "@/lib/store/store";
+import { useAppSelector } from "@/lib/feature/store";
 
 /**
  * ProtectedClient
- * - requiredRole: "admin" | "user" | undefined
- * - If not authenticated -> redirect to /login
- * - If authenticated but role mismatch -> redirect to /unauthorized
+ * - Redirects to `/` if user not logged in.
+ * - Redirects to `/unauthorized` if role mismatch.
  */
 export default function ProtectedClient({
   children,
-  requiredRole,
+  requiredRoles,
 }: {
   children: React.ReactNode;
-  requiredRole?: "admin" | "user";
+  requiredRoles?: string[];
 }) {
   const router = useRouter();
-  const auth = useAppSelector((s: RootState) => s.auth);
-  console.log("AUTH", auth)
-  useEffect(() => {
-    // If still loading, wait
-    if (auth.loading) return;
+  const { user, token, loading } = useAppSelector((s) => s.auth);
 
-    // Not logged in -> go to login
-    if (!auth.token) {
-      router.replace("/login");
+  useEffect(() => {
+    if (loading) return;
+
+    // ✅ Not logged in -> redirect to home page
+    if (!token) {
+      router.replace("/");
       return;
     }
 
-    // Role mismatch
-    if (requiredRole && auth.user?.role !== requiredRole) {
+    // ✅ Role-based protection
+    const userRole = user?.role?.toLowerCase();
+    if (requiredRoles && !requiredRoles.includes(userRole ?? "")) {
       router.replace("/unauthorized");
     }
-  }, [auth.token, auth.user, auth.loading, requiredRole, router]);
+  }, [user, token, loading, requiredRoles, router]);
 
-  // Don't render children until checks pass
-  if (auth.loading) return null;
-  if (!auth.token) return null;
-  if (requiredRole && auth.user?.role !== requiredRole) return null;
+  if (loading) return null;
+  if (!token) return null;
+  if (requiredRoles && !requiredRoles.includes(user?.role?.toLowerCase() ?? ""))
+    return null;
 
   return <>{children}</>;
 }

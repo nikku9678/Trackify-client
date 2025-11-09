@@ -1,8 +1,8 @@
 // lib/store/authSlice.ts
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import Cookies from "js-cookie";
-import { api } from "@/lib/store/authApi";
-import type { RootState } from "./store";
+import { api } from "@/lib/feature/authApi";
+import { RootState, useAppSelector } from "./store";
 
 export type Role = "admin" | "user" | string;
 
@@ -21,9 +21,14 @@ interface AuthState {
   error: string | null;
 }
 
+const tokenFromStorage =
+  typeof window !== "undefined"
+    ? Cookies.get("token") || localStorage.getItem("token")
+    : null;
+
 const initialState: AuthState = {
   user: null,
-  token: Cookies.get("token") || localStorage.getItem("token") || null,
+  token: tokenFromStorage,
   loading: false,
   error: null,
 };
@@ -56,6 +61,7 @@ export const loginUser = createAsyncThunk(
       if (data?.user?.role) {
         data.user.role = String(data.user.role).toLowerCase(); // "ADMIN" -> "admin"
       }
+
 
       if (token) {
         Cookies.set("token", token, { expires: 7 });

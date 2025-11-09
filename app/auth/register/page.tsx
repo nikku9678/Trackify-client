@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAppDispatch, useAppSelector } from "@/lib/store/store";
-import { registerUser } from "@/lib/store/authSlice";
+import { useAppDispatch, useAppSelector } from "@/lib/feature/store";
+import { registerUser } from "@/lib/feature/authSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {

@@ -1,8 +1,7 @@
 "use client";
-
-import { useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/lib/store/store";
-import { loginUser } from "@/lib/store/authSlice";
+import { useState, useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/lib/feature/store";
+import { loginUser } from "@/lib/feature/authSlice";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,16 +11,31 @@ import Link from "next/link";
 
 const LoginPage = () => {
   const dispatch = useAppDispatch();
-  const { loading, error, user } = useAppSelector((state) => state.auth);
+  const { loading, error, user, token } = useAppSelector((state) => state.auth);
   const router = useRouter();
-
   const [form, setForm] = useState({ email: "", password: "" });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = await dispatch(loginUser(form));
-    if (loginUser.fulfilled.match(result)) router.push("/");
+
+    if (loginUser.fulfilled.match(result)) {
+      const role = result.payload?.user?.role?.toLowerCase();
+      if (role === "admin") {
+        router.replace("/admin/dashboard");
+      } else {
+        router.replace("/");
+      }
+    }
   };
+
+  useEffect(() => {
+    if (user && token) {
+      const role = user.role?.toLowerCase();
+      if (role === "admin") router.replace("/admin/dashboard");
+      else router.replace("/");
+    }
+  }, [user, token, router]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-6">
@@ -37,13 +51,17 @@ const LoginPage = () => {
               name="email"
               placeholder="Email"
               type="email"
+              value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
+              required
             />
             <Input
               name="password"
               placeholder="Password"
               type="password"
+              value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
+              required
             />
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Logging in..." : "Login"}

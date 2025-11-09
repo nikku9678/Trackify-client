@@ -3,14 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { Menu, X, Sun, Moon } from "lucide-react";
-import {
-  NavigationMenu,
-  NavigationMenuList,
-  NavigationMenuItem,
-  NavigationMenuTrigger,
-  NavigationMenuLink,
-} from "@/components/ui/navigation-menu";
+import { Menu, X, Sun, Moon, Code2, Database, Palette, Rocket } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,9 +12,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useAppSelector, useAppDispatch } from "@/lib/store/store";
-import { logout } from "@/lib/store/authSlice";
-import { persistor } from "@/lib/store/store";
+import { useAppSelector, useAppDispatch } from "@/lib/feature/store";
+import { logout } from "@/lib/feature/authSlice";
+import { persistor } from "@/lib/feature/store";
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -31,7 +24,6 @@ export default function Navbar() {
   const { user, token } = useAppSelector((state) => state.auth);
 
   const handleLogout = async () => {
-    // Clear persisted Redux state
     await persistor.purge();
     dispatch(logout());
   };
@@ -39,106 +31,195 @@ export default function Navbar() {
   return (
     <nav
       className="
-        fixed top-3 left-1/2 z-50 w-[80%] -translate-x-1/2 
-        rounded-xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)]
-        bg-white/10 dark:bg-neutral-900/40 backdrop-blur-xl
-        transition-colors
+         top-0 left-0 z-50 w-full 
+        border-b border-neutral-300 dark:border-neutral-700 
+        bg-white/70 dark:bg-neutral-900/60 backdrop-blur-xl 
+        shadow-none transition-colors
       "
     >
-      <div className="container mx-auto flex h-14 items-center justify-between px-4">
+      <div className="max-w-[85%] mx-auto py-4 flex items-center justify-between">
         {/* Left: Logo */}
         <Link
           href="/"
           className="
-            relative text-xl font-extrabold 
+            text-2xl font-extrabold 
             bg-gradient-to-r from-[#00e0ff] via-[#a855f7] to-[#ff0080]
             bg-clip-text text-transparent 
-            animate-gradient 
-            hover:opacity-90 transition-opacity
+            animate-gradient hover:opacity-90 transition-opacity
           "
         >
           Trackify
         </Link>
 
-        {/* Center: Navigation Links (Desktop) */}
-        <div className="hidden md:flex">
-          <NavigationMenu>
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link
-                    href="/"
-                    className="px-3 py-2 text-sm font-medium hover:text-primary transition-colors"
-                  >
-                    Home
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
+        {/* Center: Navigation Links */}
+        <div className="hidden md:flex justify-center flex-1">
+          <ul className="flex items-center gap-6">
+            {/* Home */}
+            <li>
+              <Link
+                href="/"
+                className="text-md font-medium hover:text-primary transition-colors"
+              >
+                Home
+              </Link>
+            </li>
 
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link
-                    href="/sheets"
-                    className="px-3 py-2 text-sm font-medium hover:text-primary transition-colors"
-                  >
-                    Sheets
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
+            {/* Sheets */}
+            <li>
+              <Link
+                href="/sheets"
+                className="text-md font-medium hover:text-primary transition-colors"
+              >
+                Sheets
+              </Link>
+            </li>
 
-              <NavigationMenuItem className="group relative">
-                <NavigationMenuTrigger
-                  className="
-                    bg-transparent px-3 py-2 text-sm font-medium 
-                    text-foreground hover:text-primary 
-                    transition-colors group-hover:bg-transparent
-                  "
-                >
-                  Services
-                </NavigationMenuTrigger>
+            {/* Services Dropdown */}
+         <li className="relative group">
+  <Button
+    className="
+      flex items-center gap-1 bg-transparent text-md font-medium text-foreground 
+      hover:text-primary transition-colors focus:outline-none
+    "
+  >
+    Services
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={2}
+      stroke="currentColor"
+      className="w-4 h-4 mt-[2px] transition-transform duration-300 group-hover:rotate-180"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  </Button>
 
-                <div
-                  className="absolute left-0 top-full mt-2 w-[200px] rounded-md border 
-                            bg-background/90 backdrop-blur-md shadow-lg 
-                            opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 
-                            pointer-events-none group-hover:pointer-events-auto 
-                            transition-all duration-200 ease-out
-                            z-50"
-                >
-                  <div className="grid gap-2 p-3">
-                    <Link
-                      href="/services/web"
-                      className="text-sm hover:text-primary transition-colors"
-                    >
-                      Web Development
-                    </Link>
-                    <Link
-                      href="/services/ui"
-                      className="text-sm hover:text-primary transition-colors"
-                    >
-                      UI/UX Design
-                    </Link>
-                  </div>
-                </div>
-              </NavigationMenuItem>
+  {/* Dropdown Card */}
+<div
+  className="
+    absolute left-1/2 top-full mt-3 w-[500px] max-w-[90vw] -translate-x-1/2
+    rounded-xl border border-neutral-300 dark:border-neutral-700 
+    bg-white dark:bg-neutral-900 backdrop-blur-none shadow-none
+    opacity-0 invisible translate-y-2 scale-95
+    group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:scale-100
+    transition-all duration-300 ease-out z-50
+  "
+>
 
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link
-                    href="/contact"
-                    className="px-3 py-2 text-sm font-medium hover:text-primary transition-colors"
-                  >
-                    Contact
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
+    <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 p-5">
+      {/* Column 1 */}
+      <div className="border-b border-border/40 pb-3">
+        <h3 className="text-sm font-semibold text-primary mb-3">
+          Development
+        </h3>
+
+        <div className="space-y-3">
+          <Link
+            href="/services/web"
+            className="
+              flex items-start gap-3 rounded-lg p-3 hover:bg-accent/20 transition
+            "
+          >
+            <div className="flex-shrink-0">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Code2 className="w-4 h-4 text-primary" />
+              </div>
+            </div>
+            <div>
+              <p className="font-medium text-sm">Web Development</p>
+              <p className="text-xs text-muted-foreground">
+                Build modern, scalable web applications.
+              </p>
+            </div>
+          </Link>
+
+          <Link
+            href="/services/backend"
+            className="
+              flex items-start gap-3 rounded-lg p-3 hover:bg-accent/20 transition
+            "
+          >
+            <div className="flex-shrink-0">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Database className="w-4 h-4 text-primary" />
+              </div>
+            </div>
+            <div>
+              <p className="font-medium text-sm">Backend Services</p>
+              <p className="text-xs text-muted-foreground">
+                Robust APIs and databases for any platform.
+              </p>
+            </div>
+          </Link>
+        </div>
+      </div>
+
+      {/* Column 2 */}
+      <div className="border-b border-border/40 pb-3">
+        <h3 className="text-sm font-semibold text-primary mb-3">
+          Design & Strategy
+        </h3>
+
+        <div className="space-y-3">
+          <Link
+            href="/services/ui"
+            className="
+              flex items-start gap-3 rounded-lg p-3 hover:bg-accent/20 transition
+            "
+          >
+            <div className="flex-shrink-0">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Palette className="w-4 h-4 text-primary" />
+              </div>
+            </div>
+            <div>
+              <p className="font-medium text-sm">UI/UX Design</p>
+              <p className="text-xs text-muted-foreground">
+                Craft beautiful, intuitive user experiences.
+              </p>
+            </div>
+          </Link>
+
+          <Link
+            href="/services/branding"
+            className="
+              flex items-start gap-3 rounded-lg p-3 hover:bg-accent/20 transition
+            "
+          >
+            <div className="flex-shrink-0">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Rocket className="w-4 h-4 text-primary" />
+              </div>
+            </div>
+            <div>
+              <p className="font-medium text-sm">Brand Strategy</p>
+              <p className="text-xs text-muted-foreground">
+                Build a strong identity and digital presence.
+              </p>
+            </div>
+          </Link>
+        </div>
+      </div>
+    </div>
+  </div>
+</li>
+
+
+            {/* Contact */}
+            <li>
+              <Link
+                href="/contact"
+                className="text-md font-medium hover:text-primary transition-colors"
+              >
+                Contact
+              </Link>
+            </li>
+          </ul>
         </div>
 
-        {/* Right Section: Theme toggle + User / Login */}
+        {/* Right: Theme Toggle & User */}
         <div className="hidden md:flex items-center gap-3">
-          {/* Theme Toggle */}
           <Button
             variant="ghost"
             size="icon"
@@ -149,7 +230,6 @@ export default function Navbar() {
             <span className="sr-only">Toggle theme</span>
           </Button>
 
-          {/* Conditional: User Logged In or Not */}
           {user || token ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -195,9 +275,9 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Dropdown Menu */}
+      {/* Mobile Dropdown */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-border/50 bg-background/70 backdrop-blur-md px-4 pb-4">
+        <div className="md:hidden border-t border-border/50 bg-background/70 backdrop-blur-md px-6 pb-4">
           <div className="flex flex-col space-y-3 mt-3">
             <Link href="/" className="text-sm font-medium hover:text-primary">
               Home
@@ -213,12 +293,17 @@ export default function Navbar() {
                 <Link href="/services/web" className="hover:text-primary">
                   Web Development
                 </Link>
+                <Link href="/services/backend" className="hover:text-primary">
+                  Backend Services
+                </Link>
                 <Link href="/services/ui" className="hover:text-primary">
                   UI/UX Design
                 </Link>
+                <Link href="/services/branding" className="hover:text-primary">
+                  Brand Strategy
+                </Link>
               </div>
             </details>
-
             <Link href="/contact" className="text-sm font-medium hover:text-primary">
               Contact
             </Link>

@@ -3,7 +3,7 @@
 import { ThemeProvider } from "next-themes";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-import { store, persistor, useAppDispatch } from "@/lib/store/store";
+import { store, persistor, useAppDispatch } from "@/lib/feature/store";
 import AuthInitializer from "@/app/auth-initializer";
 
 export function Providers({ children }: { children: React.ReactNode }) {

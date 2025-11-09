@@ -1,24 +1,28 @@
 "use client";
 import { useEffect } from "react";
 import Cookies from "js-cookie";
-import { useAppDispatch } from "@/lib/store/store";
-import { fetchUser } from "@/lib/store/authSlice";
+import { useAppDispatch } from "@/lib/feature/store";
+import { fetchUser, logout } from "@/lib/feature/authSlice";
+import { useRouter } from "next/navigation";
 
-/**
- * BootstrapAuth
- * - invoke this once inside a client provider to hydrate Redux auth from cookie token
- */
 export default function AuthInitializer() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
 
   useEffect(() => {
-    const token = Cookies.get("token") || (typeof window !== "undefined" ? localStorage.getItem("token") : null);
-    console.log("DD",token)
+    const token =
+      Cookies.get("token") ||
+      (typeof window !== "undefined" ? localStorage.getItem("token") : null);
+
     if (token) {
-      // fetch user info and populate store
-      dispatch(fetchUser() as any);
+      dispatch(fetchUser())
+        .unwrap()
+        .catch(() => {
+          dispatch(logout());
+          router.replace("/");
+        });
     }
-  }, [dispatch]);
+  }, [dispatch, router]);
 
   return null;
 }

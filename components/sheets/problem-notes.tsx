@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
-import { api } from "@/lib/store/authApi";
+import { api } from "@/lib/feature/authApi";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Sheet {

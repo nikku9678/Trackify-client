@@ -5,10 +5,11 @@ import Navbar from "@/components/navbar/navbar";
 
 export default function UserLayout({ children }: { children: React.ReactNode }) {
   return (
-   
-      <div className="min-h-screen flex flex-col">
-        <main className="p-6">{children}</main>
+      
+      <div className=" flex flex-col">
+        <Navbar/>
+        <main className="w-[85%] mx-auto">{children}</main>
       </div>
-
+   
   );
 }
