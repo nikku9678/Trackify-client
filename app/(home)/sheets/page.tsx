@@ -14,7 +14,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Search, BookOpen } from "lucide-react";
 import Link from "next/link";
-import { api } from "@/lib/feature/authApi"; // ✅ axios instance (must include baseURL + token)
+import { api } from "@/lib/feature/authApi";
 import CustomSheets from "@/components/sheets/custom-sheets";
 
 interface Sheet {
@@ -32,19 +32,15 @@ const Sheets = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ✅ Fetch sheets from backend
+  // Fetch sheets
   useEffect(() => {
     const fetchSheets = async () => {
       try {
         setLoading(true);
         setError(null);
         const res = await api.get("/sheets/");
-        console.log("Fetched Sheets:", res.data);
-
-        // ✅ Handle data safely
         setSheets(Array.isArray(res.data.data) ? res.data.data : []);
       } catch (err: any) {
-        console.error("Error fetching sheets:", err);
         setError(err?.response?.data?.message || "Failed to load sheets");
       } finally {
         setLoading(false);
@@ -56,79 +52,70 @@ const Sheets = () => {
 
   const filteredSheets = sheets.filter((sheet) => {
     const matchesFilter = filter === "all" || sheet.type === filter;
-    const matchesSearch =
-      sheet.title?.toLowerCase().includes(searchTerm.toLowerCase());
-      console.log("Filtering Sheets:", sheet.title, matchesSearch, matchesFilter);
+    const matchesSearch = sheet.title
+      ?.toLowerCase()
+      .includes(searchTerm.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
-  // ✅ Loading state
-  if (loading) {
+  if (loading)
     return (
       <div className="flex justify-center items-center h-screen text-muted-foreground">
         Loading sheets...
       </div>
     );
-  }
 
-  // ✅ Error state
-  if (error) {
+  if (error)
     return (
       <div className="flex justify-center items-center h-screen text-red-500">
         {error}
       </div>
     );
-  }
 
   return (
-    <div className="flex flex-col md:py-8 bg-background text-foreground transition-colors">
+    <div className="px-4 flex flex-col md:py-6 text-foreground bg-background min-h-screen transition-colors">
+
       {/* Heading */}
-      <div className="text-left space-y-4 mb-10">
-        <h1 className="text-3xl md:text-4xl font-bold">All Sheets</h1>
+      <div className="text-left space-y-2 mb-8">
+        <h1 className="text-3xl md:text-2xl font-bold text-gray-900 dark:text-foreground">All Sheets</h1>
         <p className="text-muted-foreground">
           Explore curated coding sheets to improve your problem-solving skills.
-          Search, filter, and track your progress easily.
         </p>
       </div>
 
-      {/* Search Bar */}
-      <div className="flex flex-row justify-between">
+      {/* Filters + Search */}
+      <div className="flex flex-row justify-between items-center mb-6">
 
-   
-     
-
-      {/* Filter Tabs */}
-      <div className="flex justify-start mb-8">
-        <Tabs defaultValue="all" onValueChange={(val) => setFilter(val)}>
-          <TabsList className="flex space-x-2 bg-muted p-1 rounded-md">
+        {/* Tabs */}
+        <Tabs defaultValue="all" onValueChange={setFilter}>
+          <TabsList className="bg-muted p-1 rounded-md">
             <TabsTrigger value="all">All</TabsTrigger>
             <TabsTrigger value="DSA">DSA</TabsTrigger>
             <TabsTrigger value="CP">CP</TabsTrigger>
             <TabsTrigger value="Popular">Popular</TabsTrigger>
           </TabsList>
         </Tabs>
-      </div>
 
-       <div className="w-1/3">
-        <Search
-          className="absolute left-3 top-3 text-muted-foreground"
-          size={18}
-        />
-        <Input
-          type="text"
-          placeholder="Search sheets..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
-        />
+        {/* Search */}
+        <div className="relative w-1/3">
+          <Search className="absolute left-3 top-3 text-muted-foreground" size={18} />
+          <Input
+            placeholder="Search sheets..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
       </div>
-         </div>
 
       {/* Sheets Cards */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {filteredSheets.length > 0 ? (
           filteredSheets.map((sheet) => (
-            <Card key={sheet.sheet_id} className="hover:shadow-md transition">
+            <Card
+              key={sheet.sheet_id}
+              className="bg-card text-card-foreground hover:shadow-md transition"
+            >
               <CardHeader className="flex items-center justify-between">
                 <Link href={`/sheets/${sheet.sheet_id}`}>
                   <CardTitle className="cursor-pointer hover:text-primary">
@@ -144,14 +131,11 @@ const Sheets = () => {
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span>{sheet.sheetProblems?.length || 0} Problems</span>
                   <span className="flex items-center gap-1">
-                    <BookOpen size={16} />{" "}
+                    <BookOpen size={16} />
                     {sheet.is_public ? "Public" : "Private"}
                   </span>
                 </div>
-                <Progress
-                  value={Math.floor(Math.random() * 100)}
-                  className="w-full"
-                />
+                <Progress value={Math.random() * 100} className="w-full" />
               </CardContent>
 
               <CardFooter>
@@ -167,7 +151,8 @@ const Sheets = () => {
           </p>
         )}
       </div>
-      <CustomSheets/>
+
+      <CustomSheets />
     </div>
   );
 };

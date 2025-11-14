@@ -1,102 +1,123 @@
 "use client";
 
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
 import {
-  LogOut,
   Search,
   User,
   Settings,
-  PanelRight,
+  LogOut,
+  PanelRightOpen,
+  PanelLeftClose,
+  Sun,
+  Moon,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { useRouter } from "next/navigation";
-import { persistor, useAppDispatch, useAppSelector } from "@/lib/feature/store";
-import { logout } from "@/lib/feature/authSlice";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Link from "next/link";
+import { useTheme } from "next-themes";
 
 export default function Navbar({ collapsed, onDesktopToggle, onMobileOpen }) {
-  const router = useRouter();
+  const { theme, setTheme } = useTheme();
 
   const handleMenuClick = () => {
-    if (window.innerWidth < 768) {
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
       onMobileOpen();
     } else {
       onDesktopToggle();
     }
   };
 
-
-  const dispatch = useAppDispatch();
-  const { user, token } = useAppSelector((state) => state.auth);
-
-  const handleLogout = async () => {
-    await persistor.purge();
-    dispatch(logout());
-  };
-
   return (
-    <header className="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700 z-10">
-      {/* Left: Hamburger + Search */}
-      <div className="flex items-center gap-3 flex-1 max-w-2xl">
+    <header className="px-6 py-2 flex flex-row justify-between">
+      {/* LEFT SECTION */}
+      <div className="flex items-center gap-3 flex-1 max-w-2xl px-4">
+        <h2 className="font-semibold text-xl text-bold text-yellow-500">
+          Welcome Nikku
+        </h2>
+      </div>
+
+      {/* RIGHT SECTION */}
+      <div className="flex items-center gap-4 md:gap-6 pr-1 md:pr-8">
+        {/* Search Bar */}
+        <div className="relative w-full hidden sm:block">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-300 w-5 h-5" />
+          <Input
+            placeholder="Search jobs, title or status..."
+            className="
+              rounded-xl 
+              pl-12 pr-4 py-3
+              text-sm
+              border border-gray-300 dark:border-gray-700
+              bg-white dark:bg-gray-800
+              text-gray-900 dark:text-gray-100
+              focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
+              focus:border-transparent
+            "
+          />
+        </div>
+
         <Button
           variant="ghost"
           size="icon"
-          onClick={handleMenuClick}
-          className="rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+          onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+          className="relative"
         >
-          <PanelRight className="w-5 h-5" />
+          {/* Light Mode Icon */}
+          <Sun className="h-5 w-5 transition-all duration-300 rotate-0 scale-100 dark:-rotate-90 dark:scale-0" />
+
+          {/* Dark Mode Icon */}
+          <Moon className="absolute h-5 w-5 text-gray-900 transition-all duration-300 rotate-90 scale-0 dark:rotate-0 dark:scale-100" />
+
+          <span className="sr-only">Toggle theme</span>
         </Button>
 
-        {/* Search */}
-        <div className="relative w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-400 w-4 h-4" />
-          <Input
-            placeholder="Search jobs, title or status..."
-            className="pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-gray-500 dark:focus:border-gray-400 focus:ring-0"
-          />
-        </div>
-      </div>
-
-      {/* Right Section */}
-      <div className="flex items-center gap-3 md:gap-6 ml-3 pr-1 md:pr-8">
-
-        {/* User Dropdown */}
+        {/* USER MENU */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Avatar className="cursor-pointer border border-gray-300 dark:border-gray-600 w-9 h-9 hover:ring-1 hover:ring-gray-400 dark:hover:ring-gray-500">
+            <Avatar className="cursor-pointer border w-9 h-9 hover:ring-2 hover:ring-primary/40 transition">
               <AvatarImage src="https://github.com/shadcn.png" />
               <AvatarFallback>JD</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent
             align="end"
-            className="w-56 p-2 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 dark:text-gray-100"
+            className="w-56 p-2 rounded-xl shadow-lg bg-white dark:bg-gray-800 dark:text-gray-100"
           >
-            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+            {/* User Info */}
+            <div className="px-4 py-4 border-b dark:border-gray-700">
               <p className="font-semibold">John Doe</p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 john.doe@example.com
               </p>
             </div>
 
-            <DropdownMenuItem className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-              <User className="w-4 h-4" />
-              Profile
+            {/* Menu Items */}
+            <DropdownMenuItem asChild>
+              <Link href="/profile" className="flex items-center gap-2">
+                <User className="w-4 h-4" />
+                Profile
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700">
-              <Settings className="w-4 h-4" />
-              Settings
+
+            <DropdownMenuItem asChild>
+              <Link href="/settings" className="flex items-center gap-2">
+                <Settings className="w-4 h-4" />
+                Settings
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={handleLogout}
-              className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-red-500"
-            >
+
+            <DropdownMenuItem className="flex items-center gap-2 text-red-500 hover:text-red-600">
               <LogOut className="w-4 h-4" />
               Logout
             </DropdownMenuItem>

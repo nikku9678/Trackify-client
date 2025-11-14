@@ -63,7 +63,7 @@ const SheetSectionList = ({ sheetId }: SheetSectionListProps) => {
   };
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-4 px-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Sections</h2>
         <Button onClick={() => setIsDialogOpen(true)} className="flex items-center gap-2">

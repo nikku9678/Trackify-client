@@ -9,7 +9,7 @@ export default function SheetPage({ params }: { params: Promise<{ id: string }> 
   const sheetId = Number(id);
 
   return (
-    <div className="mx-auto md:py-8 bg-background text-foreground">
+    <div className="">
       <SheetSectionList sheetId={sheetId} />
     </div>
   );

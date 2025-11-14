@@ -1,92 +1,85 @@
 "use client";
 
-import {
-  Home,
-  Briefcase,
-  Users,
-  ClipboardList,
-  X,
-} from "lucide-react";
+import { FileText, Settings, LogOut } from "lucide-react";
 import clsx from "clsx";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export default function Sidebar({ collapsed = false, mobile = false, onClose }) {
+export default function Sidebar() {
   const pathname = usePathname();
 
-  const sidebarLinks = [
-    { icon: Home, label: "Dashboard", href: "/admin" },
-    { icon: Briefcase, label: "Jobs", href: "/admin/jobs" },
-    { icon: Users, label: "Candidates", href: "/admin/candidates" },
-    { icon: ClipboardList, label: "Assessments", href: "/admin/assessments" },
+  const sidebarUrl = [
+    { icon: FileText, label: "Portfolio", href: "/portfolio" },
+    { icon: FileText, label: "My Sheets", href: "/sheets" },
+    { icon: Settings, label: "Assessments", href: "/me" }
   ];
+
+  const navItemBase =
+    "flex items-center rounded-md text-sm transition-all duration-300 ease-in-out";
 
   return (
     <aside
       className={clsx(
-        "bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700 flex-col transition-[width] duration-300 ease-in-out h-full fixed md:relative z-40",
-        mobile
-          ? "flex w-64"
-          : collapsed
-          ? "w-20 hidden md:flex"
-          : "w-64 hidden md:flex"
+        "",
+        "text-black",
+        "h-full w-fit fixed md:relative z-40",
+        "transition-all duration-300"
       )}
     >
-      {/* Header */}
-      <div
-        className={clsx(
-          "flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700",
-          collapsed && !mobile ? "justify-center" : "gap-2"
-        )}
-      >
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center shrink-0 border border-gray-300 dark:border-gray-600">
-            <span className="text-xs font-bold">TF</span>
-          </div>
-          {(!collapsed || mobile) && (
-            <h2 className="text-lg font-bold transition-opacity duration-300">
-              Talent Flow
-            </h2>
-          )}
+      <nav className="mt-8 px-2 mx-auto flex flex-col justify-between h-[80%] relative">
+
+        {/* TOP LINKS */}
+        <div className="space-y-1">
+          {sidebarUrl.map(({ icon: Icon, label, href }) => {
+            const isActive = pathname === href;
+
+            return (
+              <Link key={label} href={href}>
+                <div
+                  className={clsx(
+                    navItemBase,
+                    "flex-col justify-center items-center py-3 px-4 mt-1",
+
+                    // 🌟 Yellow active theme
+                    isActive
+                      ? "bg-yellow-300 dark:bg-yellow-400 text-gray-700 dark:text-gray-800 font-semibold"
+                      : "text-gray-950 dark:text-neutral-300 hover:bg-yellow-300 hover:text-gray-800 dark:hover:bg-neutral-800"
+                  )}
+                >
+                  <Icon className="w-6 h-6" />
+                  <span className="text-xs mt-1 text-center leading-tight">
+                    {label}
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
         </div>
 
-        {mobile && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            className="md:hidden rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-          >
-            <X className="w-5 h-5" />
-          </Button>
-        )}
-      </div>
+        {/* BOTTOM SECTION */}
+        <div className="flex flex-col items-center space-y-4 pb-4">
+          <div className="w-[90%] border-b border-neutral-300 dark:border-neutral-800" />
 
-      {/* Nav Links */}
-      <nav className="flex-1 mt-4 space-y-1">
-        {sidebarLinks.map(({ icon: Icon, label, href }) => {
-          const active = pathname === href;
-          return (
-            <Link
-              key={label}
-              href={href}
+          {/* Logout */}
+          <div className="w-full">
+            <button
               className={clsx(
-                "flex items-center rounded text-sm transition-all duration-300 ease-in-out",
-                collapsed && !mobile
-                  ? "flex-col gap-1 text-xs w-fit mx-auto justify-center p-3 hover:text-blue-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-                  : "gap-3 px-6 py-3 hover:bg-gray-100 dark:hover:bg-gray-700",
-                active
-                  ? "bg-gray-200 dark:bg-gray-800 text-blue-600 dark:text-white"
-                  : ""
+                navItemBase,
+                "flex-col justify-center items-center py-3 w-full px-4",
+                "text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"
               )}
             >
-              <Icon className="w-5 h-5" />
-              {(!collapsed || mobile) && <span>{label}</span>}
-            </Link>
-          );
-        })}
+              <LogOut className="w-6 h-6" />
+              <span className="text-xs mt-1 leading-tight text-center">
+                Logout
+              </span>
+            </button>
+          </div>
+        </div>
+
       </nav>
+
+
     </aside>
   );
 }
