@@ -25,7 +25,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
         <div className="flex flex-col rounded-4xl flex-1 scroll-w-1 bg-background text-foreground border-l border-yellow-300 dark:border-yellow-700 ml-35 max-h-screen">
 
           {/* Navbar */}
-          <Navbar onMobileOpen={() => setMobileOpen(true)} />
+          <Navbar/>
 
           {/* Scrollable content */}
           <main className="px-4 flex-1 overflow-y-auto  thin-scroll">

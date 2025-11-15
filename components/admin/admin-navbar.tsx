@@ -26,16 +26,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 
-export default function Navbar({ collapsed, onDesktopToggle, onMobileOpen }) {
+export default function Navbar() {
   const { theme, setTheme } = useTheme();
 
-  const handleMenuClick = () => {
-    if (typeof window !== "undefined" && window.innerWidth < 768) {
-      onMobileOpen();
-    } else {
-      onDesktopToggle();
-    }
-  };
 
   return (
     <header className="px-6 py-2 flex flex-row justify-between">
