@@ -13,7 +13,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   const SIDEBAR_WIDTH = "w-35";
 
   return (
-    <ProtectedClient requiredRoles={["user"]}>
+ 
       <div className="flex min-h-screen fixed w-full bg-gray-100 py-2 pr-2 dark:bg-background text-foreground">
 
         {/* --- FIXED SIDEBAR --- */}
@@ -41,6 +41,6 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
           />
         )}
       </div>
-    </ProtectedClient>
+  
   );
 }
