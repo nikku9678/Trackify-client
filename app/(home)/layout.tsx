@@ -18,7 +18,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 
         {/* --- FIXED SIDEBAR --- */}
         <div className={`fixed inset-y-0 left-0 z-40 ${SIDEBAR_WIDTH} mx-auto`}>
-          <Sidebar mobile={mobileOpen} onClose={() => setMobileOpen(false)} />
+          <Sidebar />
         </div>
 
         {/* --- MAIN CONTENT (scrollable) --- */}
