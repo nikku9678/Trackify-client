@@ -3,6 +3,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import Cookies from "js-cookie";
 import { api } from "@/lib/feature/authApi";
 import { RootState, useAppSelector } from "./store";
+import { BASE_URL } from "../config/config";
 
 export type Role = "admin" | "user" | string;
 
@@ -55,7 +56,7 @@ export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (body: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const { data } = await api.post("/auth/login", body);
+      const { data } = await api.post(`${BASE_URL}/auth/login`, body);
       const { token } = normalizeLoginPayload(data);
        // Normalize role to lowercase to simplify checks on frontend
       if (data?.user?.role) {

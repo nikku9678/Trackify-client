@@ -1,0 +1,1 @@
+export const BASE_URL = "https://trackify-server-igfy.onrender.com/api"
