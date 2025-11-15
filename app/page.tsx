@@ -5,6 +5,7 @@ import { BarChartCard } from "@/components/charts/bar-charts";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import Hero from "@/components/home/Hero";
 import Navbar from "@/components/navbar/navbar";
+import Sheets from "./(home)/sheets/page";
 
 export default function UserDashboard() {
   // Static demo data
@@ -25,7 +26,8 @@ export default function UserDashboard() {
   return (
    <div>
       <Navbar/>
-      <Hero/> 
+      <Hero/>
+      <Sheets/> 
    </div>
   );
 }

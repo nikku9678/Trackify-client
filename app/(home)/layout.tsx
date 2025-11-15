@@ -17,12 +17,12 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
       <div className="flex min-h-screen fixed w-full bg-gray-100 py-2 pr-2 dark:bg-background text-foreground">
 
         {/* --- FIXED SIDEBAR --- */}
-        <div className={`fixed inset-y-0 left-0 z-40 ${SIDEBAR_WIDTH} mx-auto`}>
+        <div className={`fixed inset-y-0 left-4 z-40 ${SIDEBAR_WIDTH} mx-auto`}>
           <Sidebar />
         </div>
 
         {/* --- MAIN CONTENT (scrollable) --- */}
-        <div className="flex flex-col rounded-4xl flex-1 scroll-w-1 bg-background text-foreground border-l border-yellow-300 dark:border-yellow-700 ml-35 max-h-screen">
+        <div className="flex flex-col rounded-xl flex-1 scroll-w-1 bg-background text-foreground border-l border-yellow-300 dark:border-yellow-700 ml-35 max-h-screen">
 
           {/* Navbar */}
           <Navbar/>

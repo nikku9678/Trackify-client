@@ -73,7 +73,7 @@ const Sheets = () => {
     );
 
   return (
-    <div className="px-4 flex flex-col md:py-6 text-foreground bg-background min-h-screen transition-colors">
+    <div className="w-[80%] mx-auto px-4 flex flex-col md:py-6 text-foreground bg-background min-h-screen transition-colors">
 
       {/* Heading */}
       <div className="text-left space-y-2 mb-8">
