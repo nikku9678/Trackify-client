@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { api } from "@/lib/feature/authApi";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -27,52 +26,66 @@ interface Sheet {
 }
 
 const CustomSheets = () => {
-  const [sheets, setSheets] = useState<Sheet[]>([]);
+  // ⬅ Static data
+  const [sheets, setSheets] = useState<Sheet[]>([
+    {
+      sheet_id: 1,
+      title: "DSA Beginner Sheet",
+      description: "Best sheet for beginners",
+      is_public: true,
+      sheetProblems: [{ problem_id: 1 }, { problem_id: 2 }],
+      created_at: "2025-01-01",
+    },
+    {
+      sheet_id: 2,
+      title: "Frontend Dev Sheet",
+      description: "HTML, CSS, JS important topics",
+      is_public: true,
+      sheetProblems: [{ problem_id: 1 }],
+      created_at: "2025-01-05",
+    },
+    {
+      sheet_id: 3,
+      title: "System Design Basics",
+      description: "Newcomers system design introduction",
+      is_public: false,
+      sheetProblems: [{ problem_id: 1 }],
+      created_at: "2025-01-10",
+    },
+  ]);
+
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [newSheet, setNewSheet] = useState({
     title: "",
     description: "",
     is_public: false,
   });
 
-  // ✅ Fetch Sheets
-  const fetchSheets = async () => {
-    try {
-      const res = await api.get("/sheets");
-      setSheets(res.data.data || []);
-    } catch (error) {
-      console.error("Error fetching sheets:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchSheets();
-  }, []);
-
-  // ✅ Create Sheet
-  const handleCreateSheet = async () => {
+  // Create Sheet (adds to static list)
+  const handleCreateSheet = () => {
     if (!newSheet.title.trim()) return alert("Title is required");
-    try {
-      setLoading(true);
-      await api.post("/sheets/create", newSheet);
-      setOpen(false);
-      setNewSheet({ title: "", description: "", is_public: false });
-      fetchSheets();
-    } catch (error) {
-      console.error("Error creating sheet:", error);
-    } finally {
-      setLoading(false);
-    }
+
+    const newItem: Sheet = {
+      sheet_id: sheets.length + 1,
+      title: newSheet.title,
+      description: newSheet.description,
+      is_public: newSheet.is_public,
+      sheetProblems: [],
+      created_at: new Date().toISOString(),
+    };
+
+    setSheets([...sheets, newItem]);
+
+    setOpen(false);
+    setNewSheet({ title: "", description: "", is_public: false });
   };
 
   return (
-    <div className="mt-8">
+    <Card className="mt-8 p-4 bg-muted">
       {/* Header */}
       <div className="flex items-center justify-between mb-10">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-          My Custom Sheets
-        </h1>
+        <h1 className="text-3xl font-bold text-foreground">My Custom Sheets</h1>
+
         <Button
           onClick={() => setOpen(true)}
           className="flex items-center gap-2 bg-gradient-to-r from-[#00e0ff] via-[#a855f7] to-[#ff0080] text-white font-medium"
@@ -84,18 +97,14 @@ const CustomSheets = () => {
 
       {/* Create Sheet Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700">
+        <DialogContent className="max-w-md bg-background border border-border">
           <DialogHeader>
-            <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              Create New Sheet
-            </DialogTitle>
+            <DialogTitle className="text-lg font-semibold">Create New Sheet</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Title
-              </label>
+              <label className="block text-sm font-medium mb-1">Title</label>
               <Input
                 placeholder="Enter sheet title"
                 value={newSheet.title}
@@ -106,9 +115,7 @@ const CustomSheets = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Description
-              </label>
+              <label className="block text-sm font-medium mb-1">Description</label>
               <Textarea
                 placeholder="Enter description"
                 value={newSheet.description}
@@ -128,41 +135,33 @@ const CustomSheets = () => {
                 }
                 className="w-4 h-4 accent-primary"
               />
-              <label
-                htmlFor="isPublic"
-                className="text-sm text-gray-700 dark:text-gray-300"
-              >
+              <label htmlFor="isPublic" className="text-sm">
                 Make this sheet public
               </label>
             </div>
           </div>
 
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setOpen(false)}
-              className="border-gray-400/50 dark:border-gray-600/50"
-            >
+            <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
             <Button
               onClick={handleCreateSheet}
-              disabled={loading}
               className="bg-gradient-to-r from-[#00e0ff] via-[#a855f7] to-[#ff0080] text-white"
             >
-              {loading ? "Creating..." : "Create"}
+              Create
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Sheets Cards */}
+      {/* Sheet Cards */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {sheets.length > 0 ? (
           sheets.map((sheet) => (
             <Card
               key={sheet.sheet_id}
-              className="hover:shadow-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 transition"
+              className="hover:shadow-md border border-border bg-background transition"
             >
               <CardHeader className="flex items-center justify-between">
                 <Link href={`/sheets/${sheet.sheet_id}`}>
@@ -170,24 +169,21 @@ const CustomSheets = () => {
                     {sheet.title}
                   </CardTitle>
                 </Link>
-                <Button size="sm" variant="outline">
-                  Follow
-                </Button>
+
+                <Button size="sm" variant="outline">Follow</Button>
               </CardHeader>
 
               <CardContent className="space-y-2">
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span>{sheet.sheetProblems?.length || 0} Problems</span>
+
                   <span className="flex items-center gap-1">
-                    <BookOpen size={16} />{" "}
+                    <BookOpen size={16} />
                     {sheet.is_public ? "Public" : "Private"}
                   </span>
                 </div>
 
-                <Progress
-                  value={Math.floor(Math.random() * 100)}
-                  className="w-full"
-                />
+                <Progress value={Math.floor(Math.random() * 100)} className="w-full" />
               </CardContent>
 
               <CardFooter>
@@ -203,7 +199,7 @@ const CustomSheets = () => {
           </p>
         )}
       </div>
-    </div>
+    </Card>
   );
 };
 
